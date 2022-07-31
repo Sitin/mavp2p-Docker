@@ -1,0 +1,68 @@
+name: Publish to Docker registry
+on:
+  push:
+    branches:
+      - 'main'
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout repository
+      - uses: actions/checkout@master
+      # https://github.com/actions-ecosystem/action-get-latest-tag
+      - name: Get latest tag
+        id: get-latest-tag
+        uses: actions-ecosystem/action-get-latest-tag@v1
+        with:
+          semver_only: true
+          with_initial_version: false
+      - name: Check mavp2p tag
+        run: if [ -z ${{ steps.get-latest-tag.outputs.tag }} ]; then echo "mavp2p tag is not specified"; exit 1; else echo "mavp2p tag = ${{ steps.get-latest-tag.outputs.tag }}"; fi
+      # https://github.com/docker/setup-qemu-action
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      # https://github.com/docker/setup-buildx-action
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+      # https://github.com/marketplace/actions/docker-login
+      - name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      # https://github.com/marketplace/actions/docker-metadata-action
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            sitin/mavp2p
+          # Configure tags:
+          #   `master` branch -> `latest`
+          #   `v{xx.yy.zz}` tag -> `{xx.yy.zz}`
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+      # https://github.com/marketplace/actions/build-and-push-docker-images
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        env:
+          MAVP2P_TAG: ${{ steps.get-latest-tag.outputs.tag }}
+        with:
+          # Supported platforms
+          platforms: linux/amd64,linux/arm64/v8,linux/arm/v6,linux/arm/v7
+          # Build args
+          build-args: MAVP2P_TAG
+          # Do not push for pull requests
+          push: ${{ github.event_name != 'pull_request' }}
+          # Tags and labels defined in `meta` step
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
