@@ -1,7 +1,8 @@
 mavp2p-Docker
 =============
 
-[![Publish to Docker registry](https://github.com/Sitin/mavp2p-Docker/actions/workflows/main.yml/badge.svg)](https://github.com/Sitin/mavp2p-Docker/actions/workflows/main.yml) [![Update latest tag according to mavp2p](https://github.com/Sitin/mavp2p-Docker/actions/workflows/update-tags.yml/badge.svg)](https://github.com/Sitin/mavp2p-Docker/actions/workflows/update-tags.yml)
+[![Publish to Docker registry](https://github.com/Sitin/mavp2p-Docker/actions/workflows/main.yml/badge.svg)](https://github.com/Sitin/mavp2p-Docker/actions/workflows/main.yml)
+[![Update latest tag according to mavp2p](https://github.com/Sitin/mavp2p-Docker/actions/workflows/update-tags.yml/badge.svg)](https://github.com/Sitin/mavp2p-Docker/actions/workflows/update-tags.yml)
 
 Dockerized [mavp2p](https://github.com/aler9/mavp2p) proxy for [MAVLink](https://mavlink.io/en/).
 
